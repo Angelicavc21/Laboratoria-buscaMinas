@@ -29,3 +29,17 @@ body {
 .info {
   padding: 20px;
 }
+
+.start {
+  padding: 10px;
+  display: inline-block;
+  background-color: blue;
+  color: white;
+}
+
+.reset {
+  padding: 10px;
+  display: inline-block;
+  background-color: blue;
+  color: white;
+}
