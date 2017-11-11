@@ -1,22 +1,4 @@
 window.onload = function () {
-  var BOMB = '*',
-    BLANK = '',
-    SHOW = 'v',
-    bombs = 2;
-
-  var colors = { red: 'red', green: 'green', lightGray: '#dddddd', gray: '#c3c3c3', darkGray: 'gray' };
-  var texts = { winner: 'Ganaste!!!', loser: 'Perdiste!!!' }
-
-  var matrixOrigin = [[1, 1, 1, BLANK],
-    [1, BOMB, 1, BLANK],
-    [1, 1, 2, 1],
-    [BLANK, BLANK, 1, BOMB]];
-  
-  var matrixView = [[BLANK, BLANK, BLANK, BLANK],
-    [BLANK, BLANK, BLANK, BLANK],
-    [BLANK, BLANK, BLANK, BLANK],
-    [BLANK, BLANK, BLANK, BLANK]];
-
   var board = document.querySelector('.board-js'),
     info = document.querySelector('.info-js'),
     btnStart = document.querySelector('.start-js'),
@@ -26,6 +8,24 @@ window.onload = function () {
   btnReset.addEventListener('click', reset);
 
   function start() {
+    board.BOMB = '*',
+    board.BLANK = '',
+    board.SHOW = 'v',
+    board.bombs = 2;
+
+    board.colors = { red: 'red', green: 'green', lightGray: '#dddddd', gray: '#c3c3c3', darkGray: 'gray' };
+    board.texts = { winner: 'Ganaste!!!', loser: 'Perdiste!!!' };
+
+    board.matrixOrigin = [[1, 1, 1, board.BLANK],
+      [1, board.BOMB, 1, board.BLANK],
+      [1, 1, 2, 1],
+      [board.BLANK, board.BLANK, 1, board.BOMB]];
+
+    board.matrixView = [[board.BLANK, board.BLANK, board.BLANK, board.BLANK],
+      [board.BLANK, board.BLANK, board.BLANK, board.BLANK],
+      [board.BLANK, board.BLANK, board.BLANK, board.BLANK],
+      [board.BLANK, board.BLANK, board.BLANK, board.BLANK]];
+
     reset();
     board.addEventListener('click', displayCell);
     board.addEventListener('mouseover', cellMouseOver);
@@ -33,25 +33,37 @@ window.onload = function () {
   }
 
   function cellMouseOver(event) {
-    event.target.style.backgroundColor = colors.darkGray;
+    if (event.target.matches('td')) {
+      var row = parseInt(event.target.parentElement.dataset.row);
+      var column = parseInt(event.target.dataset.column);
+
+      if (board.matrixView[row - 1][column - 1] === '')
+        event.target.style.backgroundColor = board.colors.darkGray;
+    }
   }
 
   function cellMouseOut(event) {
-    event.target.style.backgroundColor = colors.gray;
+    if (event.target.matches('td')) {
+      var row = parseInt(event.target.parentElement.dataset.row);
+      var column = parseInt(event.target.dataset.column);
+
+      if (board.matrixView[row - 1][column - 1] === '')
+        event.target.style.backgroundColor = board.colors.gray;    
+    }
   }
 
   function reset() {
-    info.textContent = BLANK;
+    info.textContent = board.BLANK;
     var cells = document.querySelectorAll('td');
 
     for (var i = 0; i < cells.length; i++) {
-      cells[i].textContent = BLANK;
-      cells[i].style.backgroundColor = colors.gray;
+      cells[i].textContent = board.BLANK;
+      cells[i].style.backgroundColor = board.colors.gray;
     }
 
-    for (i = 0; i < matrixView.length; i++) {
-      for (var j = 0; j < matrixView.length; j++) {
-        matrixView[i][j] = BLANK;
+    for (i = 0; i < board.matrixView.length; i++) {
+      for (var j = 0; j < board.matrixView.length; j++) {
+        board.matrixView[i][j] = board.BLANK;
       }
     }
   }
@@ -60,26 +72,26 @@ window.onload = function () {
     if (event.target.matches('td')) {
       var value = getMatrixValue(event);
 
-      if (value !== SHOW) {
+      if (value !== board.SHOW) {
         if (value === '') {
-          event.target.style.backgroundColor = colors.lightGray;
+          event.target.style.backgroundColor = board.colors.lightGray;
         } else {
           event.target.textContent = value;
         }
         setMatrixValue(event);
 
         // código repetido, crear función
-        if (value === BOMB) {
+        if (value === board.BOMB) {
           board.removeEventListener('click', displayCell);
-          showBombs(colors.red);
-          info.textContent = texts.loser;
+          showBombs(board.colors.red);
+          info.textContent = board.texts.loser;
 
           board.removeEventListener('mouseover', cellMouseOver);
           board.removeEventListener('mouseout', cellMouseOut);
         } else if (isWinner()) {
           board.removeEventListener('click', displayCell);
-          showBombs(colors.green);
-          info.textContent = texts.winner;
+          showBombs(board.colors.green);
+          info.textContent = board.texts.winner;
         }
       }
     }
@@ -88,14 +100,14 @@ window.onload = function () {
   function isWinner() {
     var countVs = 0,
       centinel = false,
-      matrixLength = matrixView.length * matrixView.length;
+      matrixLength = board.matrixView.length * board.matrixView.length;
 
-    for (var i = 0; i < matrixView.length && !centinel; i++) {
-      for (var j = 0; j < matrixView.length; j++) {
-        if (matrixView[i][j] === SHOW)
+    for (var i = 0; i < board.matrixView.length && !centinel; i++) {
+      for (var j = 0; j < board.matrixView.length; j++) {
+        if (board.matrixView[i][j] === board.SHOW)
           countVs++;
 
-        if (countVs === matrixLength - bombs)
+        if (countVs === matrixLength - board.bombs)
           centinel = true;
       }
     }
@@ -107,7 +119,7 @@ window.onload = function () {
     var row = parseInt(event.target.parentElement.dataset.row);
     var column = parseInt(event.target.dataset.column);
 
-    return matrixOrigin[row - 1][column - 1];
+    return board.matrixOrigin[row - 1][column - 1];
   }
 
   // asigna el valor de SHOW a la matriz
@@ -115,14 +127,14 @@ window.onload = function () {
     var row = parseInt(event.target.parentElement.dataset.row);
     var column = parseInt(event.target.dataset.column);
 
-    matrixView[row - 1][column - 1] = SHOW;
+    board.matrixView[row - 1][column - 1] = board.SHOW;
   }
 
   // muestra las bombas
   function showBombs(color) {
-    for (var i = 0; i < matrixOrigin.length; i++) {
-      for (var j = 0; j < matrixOrigin.length; j++) {
-        if (matrixOrigin[i][j] === BOMB) {
+    for (var i = 0; i < board.matrixOrigin.length; i++) {
+      for (var j = 0; j < board.matrixOrigin.length; j++) {
+        if (board.matrixOrigin[i][j] === board.BOMB) {
           /* cells[i * 4 + j].style.backgroundColor = color; */
           var fila = document.querySelectorAll('tr')[i];
           var cell = fila.querySelectorAll('td')[j];
