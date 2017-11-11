@@ -4,7 +4,7 @@ window.onload = function () {
     SHOW = 'v',
     bombs = 2;
 
-  var colors = { red: 'red', green: 'green', lightGray: '#dddddd', gray: '#c3c3c3' };
+  var colors = { red: 'red', green: 'green', lightGray: '#dddddd', gray: '#c3c3c3', darkGray: 'gray' };
   var texts = { winner: 'Ganaste!!!', loser: 'Perdiste!!!' }
 
   var matrixOrigin = [[1, 1, 1, BLANK],
@@ -26,7 +26,18 @@ window.onload = function () {
   btnReset.addEventListener('click', reset);
 
   function start() {
-    board.addEventListener('click', displayCell);  
+    reset();
+    board.addEventListener('click', displayCell);
+    board.addEventListener('mouseover', cellMouseOver);
+    board.addEventListener('mouseout', cellMouseOut);
+  }
+
+  function cellMouseOver(event) {
+    event.target.style.backgroundColor = colors.darkGray;
+  }
+
+  function cellMouseOut(event) {
+    event.target.style.backgroundColor = colors.gray;
   }
 
   function reset() {
@@ -36,6 +47,12 @@ window.onload = function () {
     for (var i = 0; i < cells.length; i++) {
       cells[i].textContent = BLANK;
       cells[i].style.backgroundColor = colors.gray;
+    }
+
+    for (i = 0; i < matrixView.length; i++) {
+      for (var j = 0; j < matrixView.length; j++) {
+        matrixView[i][j] = BLANK;
+      }
     }
   }
 
@@ -54,11 +71,14 @@ window.onload = function () {
         // código repetido, crear función
         if (value === BOMB) {
           board.removeEventListener('click', displayCell);
-          showBombs(matrixOrigin, BOMB, colors.red);
+          showBombs(colors.red);
           info.textContent = texts.loser;
+
+          board.removeEventListener('mouseover', cellMouseOver);
+          board.removeEventListener('mouseout', cellMouseOut);
         } else if (isWinner()) {
           board.removeEventListener('click', displayCell);
-          showBombs(matrixOrigin, BOMB, colors.green);
+          showBombs(colors.green);
           info.textContent = texts.winner;
         }
       }
@@ -68,11 +88,11 @@ window.onload = function () {
   function isWinner() {
     var countVs = 0,
       centinel = false,
-      matrixLength = matrixOrigin.length * matrixOrigin.length;
+      matrixLength = matrixView.length * matrixView.length;
 
-    for (var i = 0; i < matrixOrigin.length && !centinel; i++) {
-      for (var j = 0; j < matrixOrigin.length; j++) {
-        if (matrixOrigin[i][j] === SHOW)
+    for (var i = 0; i < matrixView.length && !centinel; i++) {
+      for (var j = 0; j < matrixView.length; j++) {
+        if (matrixView[i][j] === SHOW)
           countVs++;
 
         if (countVs === matrixLength - bombs)
@@ -95,11 +115,11 @@ window.onload = function () {
     var row = parseInt(event.target.parentElement.dataset.row);
     var column = parseInt(event.target.dataset.column);
 
-    matrixOrigin[row - 1][column - 1] = SHOW;
+    matrixView[row - 1][column - 1] = SHOW;
   }
 
   // muestra las bombas
-  function showBombs(matrixOrigin, BOMB, color) {
+  function showBombs(color) {
     for (var i = 0; i < matrixOrigin.length; i++) {
       for (var j = 0; j < matrixOrigin.length; j++) {
         if (matrixOrigin[i][j] === BOMB) {
